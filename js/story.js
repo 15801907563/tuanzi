@@ -7,6 +7,9 @@
  *   { bg: 'xxx' }                 切换背景
  *   { chars: ['a','b'], cat: true } 切换在场角色（cat 控制是否显示团子，默认沿用当前）
  *   { card: 'lin' }               弹出人物档案卡
+ *   { fx: 'shake' }               演出效果（只影响画面，不影响剧情）：
+ *       shake 震屏 / bloom 白光 / flash 闪白 / heartbeat(on) 心跳暗角 / burst(kind, who) 粒子爆发
+ *       fall(who) 倒下 / dash(who) 冲出画面 / ascend(who) 化作光点升天 / fadeaway(who) 慢慢睡去
  * 文本占位：{m:公猫文本|f:母猫文本}，根据开局选择的性别显示
  * 场景字段：bg, chars, noCat, lines, choices, next, ending
  * 选项字段：t(文本), fx(羁绊加成), lines(选后反应), next(跳转，缺省用场景的 next)
@@ -90,11 +93,15 @@ var SCENES = {
     bg: 'dusk', chars: ['grandma'],
     lines: [
       ['narr', '那天傍晚，奶奶在厨房给团子煮鸡胸肉。'],
+      { fx: 'fall', who: 'grandma' },
       ['narr', '煮着煮着，她突然扶住灶台，慢慢地蹲了下去。'],
+      { fx: 'heartbeat', on: true },
       ['cat', '喵？'],
       ['inner', '奶奶？地上凉，你蹲那儿干嘛……奶奶？'],
       ['narr', '锅里的水咕嘟咕嘟地响着。奶奶没有回答。'],
       { chars: [] },
+      { fx: 'heartbeat', on: false },
+      { fx: 'dash', who: 'cat' },
       ['inner', '那是我这辈子跑得最快的一次。我冲到门口，用尽全身力气，去挠隔壁刘叔叔家的门。'],
       ['inner', '平时我连逗猫棒都懒得追。可那天，我差点把爪子挠秃了。']
     ],
@@ -620,6 +627,8 @@ var SCENES = {
         ['narr', '后来，这段长达四十分钟、只有呼噜声的视频，被粉丝封为“年度最佳助眠神片”。']
       ] },
       { t: '一爪子拍倒补光灯', fx: { su: 2 }, lines: [
+        { fx: 'shake' },
+        { fx: 'burst', kind: 'confetti' },
         ['narr', '哐当！补光灯倒了，正好砸进零食堆，薯片像烟花一样炸了一屋子。'],
         ['su', '……'],
         ['su', '哈哈哈哈哈哈！！太好了！这才叫真实！不剪了，就这么发！'],
@@ -1049,6 +1058,7 @@ var SCENES = {
     ],
     choices: [
       { t: '轻轻舔了舔奶奶的手指', lines: [
+        { fx: 'ascend', who: 'grandma' },
         ['narr', '那年冬天的第一场雪落下来的时候，奶奶走了。'],
         ['narr', '她走得很安详。手心里，还攥着一小撮橘色的猫毛。']
       ] }
@@ -1087,7 +1097,9 @@ var SCENES = {
       ['inner', '奶奶，我按你说的，好好吃饭，好好睡觉，活了很多很多年。'],
       ['inner', '我活够了，也玩够了。'],
       ['inner', '我现在……可以来找你了吗？'],
+      { fx: 'heartbeat', on: true },
       ['narr', '那天下午，阳光很好。'],
+      { fx: 'fadeaway', who: 'cat' },
       ['narr', '团子睡着了，嘴角带着一点点笑。它睡得很香，很香，再也没有醒来。']
     ],
     choices: [
@@ -1098,12 +1110,16 @@ var SCENES = {
   heaven_1: {
     bg: 'heaven', chars: [], noCat: true,
     lines: [
+      { fx: 'heartbeat', on: false },
+      { chars: [], cat: true },
       ['narr', '醒来的时候，四周是软绵绵、白茫茫的云。'],
       ['inner', '这里是……哪儿？'],
       ['inner', '软度十分，回弹十分，阳光照射时长……无限。'],
       ['inner', '满分。五星好评。'],
       ['narr', '它想伸个懒腰，却发现——自己的爪子，变成了一双人类的手。'],
-      { chars: ['human'] },
+      { fx: 'bloom' },
+      { chars: ['human'], cat: false },
+      { fx: 'burst', kind: 'sparkle', who: 'human' },
       ['narr', '云朵旁有一汪清澈的泉水。水面上，倒映出{m:一个眉眼清秀的少年：橘色的短发乱蓬蓬的，琥珀色的眼睛，嘴角挂着一点没睡醒的慵懒。|f:一个眉眼弯弯的姑娘：橘色的长发微微卷着，琥珀色的眼睛，头顶还翘着两撮像猫耳朵一样的呆毛。}'],
       ['inner', '等等。我……变成人了？？'],
       ['inner', '{m:……还挺帅的。不愧是我。|f:……还挺好看的。不愧是我。}']
@@ -1124,10 +1140,12 @@ var SCENES = {
       ['inner', '我以为我会吐槽的。我攒了十八年的吐槽，想跟她一句一句地说。'],
       ['inner', '可是我张开嘴，只说出了两个字——'],
       ['human', '奶奶。'],
+      { fx: 'burst', kind: 'hearts', who: 'grandma' },
       ['grandma', '{m:哎哟，长成大小伙子了，比电视里的明星还俊！|f:哎哟，长成大姑娘了，比年画上的仙女还俊！}'],
       ['grandma', '就是……'],
       ['inner', '别说。求你了，别说。'],
       ['grandma', '还是有点胖。'],
+      { fx: 'shake' },
       ['inner', '……奶奶！！在天堂重逢的第一句话，你确定要说这个吗！！'],
       ['narr', '奶奶哈哈大笑。团子也笑了，笑着笑着，眼泪就掉了下来。'],
       ['inner', '原来，猫也是会哭的。']

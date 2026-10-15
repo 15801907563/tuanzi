@@ -15,10 +15,11 @@
   <meta property="og:type" content="website">
   <meta property="og:title" content="团子的喵生选择">
   <meta property="og:description" content="我是一只叫团子的猫。奶奶住院了，我要在宠物店里，自己挑一个主人。9个结局，你能全部找到吗？">
-  <meta property="og:image" content="share.png">
+  <meta property="og:image" content="img/ui/title.webp">
   <meta itemprop="name" content="团子的喵生选择">
-  <meta itemprop="image" content="share.png">
+  <meta itemprop="image" content="img/ui/title.webp">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐱</text></svg>">
+  <link rel="preload" as="image" href="img/ui/title.webp">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -26,13 +27,18 @@
 
     <!-- 标题页 -->
     <section id="screen-title" class="screen active" aria-label="标题">
+      <div id="title-bg" class="title-bg" aria-hidden="true"></div>
+      <div class="title-shade" aria-hidden="true"></div>
+      <canvas id="title-fx" class="fx-canvas" aria-hidden="true"></canvas>
       <div class="title-deco" aria-hidden="true">
         <span>🐟</span><span>🧶</span><span>🐾</span><span>☀️</span><span>🐾</span>
       </div>
       <div class="title-cat" aria-hidden="true">🐱</div>
-      <h1 class="title-text">团子的喵生选择</h1>
-      <p class="title-sub">一只懒猫的内心吐槽录</p>
-      <div class="menu-btns">
+      <div class="title-main">
+        <h1 class="title-text" id="title-text">团子的喵生选择</h1>
+        <p class="title-sub">一只懒猫的内心吐槽录</p>
+      </div>
+      <div class="menu-btns title-btns">
         <button type="button" class="btn primary" id="btn-new">开始新故事</button>
         <button type="button" class="btn" id="btn-continue" hidden>继续故事</button>
         <button type="button" class="btn" id="btn-gallery">结局图鉴 <span id="gallery-count"></span></button>
@@ -65,27 +71,42 @@
     <!-- 游戏主界面 -->
     <section id="screen-game" class="screen" aria-label="游戏">
       <div id="stage" class="stage">
-        <div id="bg" class="bg"></div>
-        <div id="decor" class="decor" aria-hidden="true"></div>
-        <div id="chars" class="chars"></div>
+        <div id="cam" class="cam">
+          <div id="bg" class="bg"></div>
+          <div class="bg-layers" aria-hidden="true">
+            <div class="bg-layer" id="bg-a"></div>
+            <div class="bg-layer" id="bg-b"></div>
+          </div>
+          <div id="light" class="light" aria-hidden="true"></div>
+          <div id="decor" class="decor" aria-hidden="true"></div>
+          <div id="chars" class="chars"></div>
+        </div>
+        <canvas id="stage-fx" class="fx-canvas" aria-hidden="true"></canvas>
+        <div id="tint" class="tint" aria-hidden="true"></div>
+        <div id="vignette" class="vignette" aria-hidden="true"></div>
+        <div id="flash" class="flash" aria-hidden="true"></div>
+        <div id="location" class="location" aria-hidden="true"></div>
         <button type="button" id="btn-menu" class="icon-btn" aria-label="菜单">☰</button>
         <div id="toast-area" class="toast-area" aria-live="polite"></div>
       </div>
       <div id="dialog" class="dialog narr" tabindex="0" aria-live="polite">
+        <div class="thought-dots" aria-hidden="true"><i></i><i></i><i></i></div>
         <div id="speaker" class="speaker" hidden></div>
         <div id="text" class="text"></div>
-        <div id="next-indicator" class="next-indicator" aria-hidden="true">▼</div>
+        <div id="next-indicator" class="next-indicator" aria-hidden="true">🐾</div>
       </div>
       <div id="choices" class="choices" hidden></div>
+      <div id="ripples" class="ripples" aria-hidden="true"></div>
 
       <!-- 人物档案卡 -->
-      <div id="card" class="overlay" hidden>
+      <div id="card" class="overlay card-overlay" hidden>
         <div class="card-box" role="dialog" aria-label="人物档案">
           <div class="card-label">📋 领养人档案</div>
-          <div id="card-emoji" class="card-emoji" aria-hidden="true"></div>
+          <div class="card-photo"><div id="card-emoji" class="card-emoji" aria-hidden="true"></div></div>
           <div id="card-name" class="card-name"></div>
           <div id="card-tag" class="card-tag"></div>
           <p id="card-desc" class="card-desc"></p>
+          <div class="card-stamp" aria-hidden="true">待领养</div>
           <div class="card-tip">点击任意处继续</div>
         </div>
       </div>
@@ -103,17 +124,24 @@
 
     <!-- 结局页 -->
     <section id="screen-ending" class="screen" aria-label="结局">
-      <div class="ending-box">
-        <div class="ending-label">— 结局达成 —</div>
-        <div id="ending-new" class="ending-new" hidden>NEW</div>
-        <h2 id="ending-title" class="ending-title"></h2>
-        <div id="ending-route" class="ending-route"></div>
-        <p id="ending-desc" class="ending-desc"></p>
-        <p id="ending-ps" class="ending-ps"></p>
-        <div id="ending-count" class="ending-count"></div>
-        <div class="menu-btns">
-          <button type="button" class="btn primary" id="ending-again">再来一次</button>
-          <button type="button" class="btn" id="ending-gallery">结局图鉴</button>
+      <div class="ending-art-wrap" id="ending-art-wrap">
+        <div id="ending-art-blur" class="ending-art-blur"></div>
+        <img id="ending-art" class="ending-art" alt="">
+      </div>
+      <canvas id="ending-fx" class="fx-canvas" aria-hidden="true"></canvas>
+      <div class="ending-scroll">
+        <div class="ending-box">
+          <div class="ending-label">— 结局达成 —</div>
+          <div id="ending-new" class="ending-new" hidden>NEW</div>
+          <h2 id="ending-title" class="ending-title"></h2>
+          <div id="ending-route" class="ending-route"></div>
+          <p id="ending-desc" class="ending-desc"></p>
+          <p id="ending-ps" class="ending-ps"></p>
+          <div id="ending-count" class="ending-count"></div>
+          <div class="menu-btns">
+            <button type="button" class="btn primary" id="ending-again">再来一次</button>
+            <button type="button" class="btn" id="ending-gallery">结局图鉴</button>
+          </div>
         </div>
       </div>
     </section>
@@ -126,9 +154,18 @@
       <button type="button" class="btn ghost" id="gallery-back">返回</button>
     </section>
 
+    <!-- 转场遮罩：盖住整个画面 -->
+    <div id="transition" class="transition" aria-hidden="true"></div>
+
+    <!-- 图鉴大图 -->
+    <div id="viewer" class="overlay viewer" hidden>
+      <img id="viewer-img" alt="">
+    </div>
   </div>
 
   <script src="js/story.js"></script>
+  <script src="js/assets.js"></script>
+  <script src="js/fx.js"></script>
   <script src="js/engine.js"></script>
 </body>
 </html>
